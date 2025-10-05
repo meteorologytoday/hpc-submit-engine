@@ -1,0 +1,36 @@
+I am writing a python code that it is used to submit high-performance-computing jobs for Weather Forecast Research model (WRF) using slurm. I have some requirements:
+
+1. Filename is "submit_engine.py"
+
+2. The submit engine is programmed using a class `SubmitEngine`.
+
+3. It uses argparse package to receive commands.
+
+4. Command `--gen-meta` creates generate a meta-file `.meta` based on a fortran namlist file to pre-compute how many submission in total are planned, what files are we expecting for each submission. If `.meta` file already exists, then create prompt if users want to overwrite the .meta file. Each submission should also append the submit information (job id, time stamp, which run we are at now) to a file `submit_record.txt`.
+
+Here is what I mean by "expected files for each submission". It is a list that contains a series of lists, with each one storing the files that should be generate when the simulation is completed. The 0-th list corresponds to the expected list of files that will be generated after the start run, and the 1-th corresponds to expected files at the end of the second run, and so on. The checking starts from the 0-th list. If all the files exist, that means the first run is successful, now move on to the next list. If any of the file does not exist, that means the this submission failed, or has not happened yet.
+
+
+Here is how to estimate number of runs that will be submitted. For each model case, there is a config file (a fortran namelist format file, `namelist.input.original`) that contains models' "start_year, start_month, start_day, start_hour, start_minute, start_second" for the simulation start time, "end_year, end_month, end_day, end_hour, end_minute, end_second" for the simulation end time, and "run_days, run_hours, run_minutes, run_seconds" for the length of each model integration. If the integration length is T_int and the total simulation time = end time - start time is T_total, then there are ceil(T_total / T_int) submits need to be done.
+
+Before the job is submitted, the engine needs to produce a namelist file by changing the information in the reference file `namelist.input.original`. The modification includes: (a) change the start time ("start_year, start_month, start_day, start_hour, start_minute, start_second") and end time = start time + simulation time ("end_year, end_month, end_day, end_hour, end_minute, end_second"). 
+
+
+To prevent duplicate jobs, each submit action will create a lock file `.lock` that contains meta information of the last submission.
+
+5. Command `--unlock`: remove the lock file `.lock`. If the lock exists, the user will be prompted if they want to remove the .lock file.
+
+6. Command `--force-unlock`: equivalent to `--unlock` but there will be no prompt. The .lock file will be removed no matter what.
+
+7. `--check` to check the current status: whether it is running. If it is not running, show where the progress is at this point. If it is not running but the `.lock` file exists, prompt if user wants to remove the `.lock` file.
+
+8. Command `--cancel-job`: Cancel the current running job documented in `.lock` file if it is still in the queue.
+
+9. Command `--reset`: equivalent to doing `--cancel-job` and removing `.meta` file.
+
+10. Command `--clear-record`: remove the file `submit_record.txt`.
+
+11. This file can be used to run with bash, like `python3 submit_engine.py --submit`.
+
+12. For the Fortran namelist parsing, use the python package `f90nml`.
+
