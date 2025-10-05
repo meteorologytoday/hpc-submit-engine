@@ -1,0 +1,126 @@
+ &time_control
+ run_days                            = 0,
+ run_hours                           = 1,
+ run_minutes                         = 0,
+ run_seconds                         = 0,
+ start_year                          = 2001, 0001, 0001,
+ start_month                         = 01,   01,   01,
+ start_day                           = 01,   01,   01,
+ start_hour                          = 00,   00,   00,
+ start_minute                        = 00,   00,   00,
+ start_second                        = 00,   00,   00,
+ end_year                            = 0001, 0001, 0001,
+ end_month                           = 01,   01,   01,
+ end_day                             = 01,   01,   01,
+ end_hour                            = 00,   00,   00,
+ end_minute                          = 00,  120,  120,
+ end_second                          = 00,   00,   00,
+ history_interval                    = 10,   10,   10,
+ frames_per_outfile                  = 36, 1000, 1000,
+ restart                             = .false.,
+ restart_interval                    = 60,
+ io_form_history                     = 2
+ io_form_restart                     = 2
+ io_form_input                       = 2
+ io_form_boundary                    = 2
+ iofields_filename = "WRFIO",
+ ignore_iofields_warning = .true.,
+ /
+
+ &domains
+ time_step                           = 12,
+ time_step_fract_num                 = 0,
+ time_step_fract_den                 = 1,
+ max_dom                             = 1,
+ s_we                                = 1,     1,     1,
+ e_we                                = 1001        
+ s_sn                                = 1,     1,     1,
+ e_sn                                = 2,    43,    43,
+ s_vert                              = 1,     1,     1,
+ e_vert                              = 101,   41,    41,
+ dx                                  = 2000.0
+ dy                                  = 2000,
+ ztop                                = 20000, 20000, 20000,
+ grid_id                             = 1,     2,     3,
+ parent_id                           = 0,     1,     2,
+ i_parent_start                      = 0,     15,    15,
+ j_parent_start                      = 0,     15,    15,
+ parent_grid_ratio                   = 1,     3,     3,
+ parent_time_step_ratio              = 1,     3,     3,
+ feedback                            = 1,
+ smooth_option                       = 0
+ eta_levels = 1.0000, 0.9947, 0.9894, 0.9841, 0.9788, 0.9734, 0.9681, 0.9628, 0.9575, 0.9522, 0.9469, 0.9416, 0.9363, 0.9309, 0.9256, 0.9203, 0.9150, 0.9097, 0.9044, 0.8991, 0.8938, 0.8884, 0.8831, 0.8778, 0.8725, 0.8672, 0.8619, 0.8566, 0.8513, 0.8459, 0.8406, 0.8353, 0.8300, 0.8247, 0.8194, 0.8141, 0.8088, 0.8034, 0.7981, 0.7928, 0.7875, 0.7822, 0.7769, 0.7716, 0.7663, 0.7609, 0.7556, 0.7503, 0.7450, 0.7395, 0.7340, 0.7284, 0.7226, 0.7168, 0.7108, 0.7047, 0.6985, 0.6922, 0.6857, 0.6790, 0.6722, 0.6651, 0.6579, 0.6504, 0.6427, 0.6348, 0.6265, 0.6179, 0.6089, 0.5994, 0.5895, 0.5789, 0.5676, 0.5554, 0.5419, 0.5269, 0.5095, 0.4888, 0.4675, 0.4463, 0.4250, 0.4038, 0.3825, 0.3613, 0.3400, 0.3188, 0.2975, 0.2763, 0.2550, 0.2338, 0.2125, 0.1913, 0.1700, 0.1488, 0.1275, 0.1063, 0.0850, 0.0638, 0.0425, 0.0213, 0.0000
+ /
+
+ &physics
+ no_mp_heating                       = 1
+ mp_physics                          = 1         
+ ra_lw_physics                       = 0          
+ ra_sw_physics                       = 0          
+ radt                                = 5,    30,    30,
+ sf_sfclay_physics                   = 1          
+ sf_surface_physics                  = 1,     0,     0,
+ bl_pbl_physics                      = 5          
+ bldt                                = 0,     0,     0,
+ cu_physics                          = 0,     0,     0,
+ cudt                                = 1,     5,     5,
+ tke_budget                          = 1,      1,      1,
+ /
+
+ &fdda
+ /
+
+ &dynamics
+ pert_coriolis                       = .true.,
+ do_coriolis                         = .true.,
+ do_curvature                        = .false.,
+ diff_6th_opt                        = 2,
+ hybrid_opt                          = 0, 
+ rk_ord                              = 3,
+ diff_opt                            = 1,      2,      2,
+ km_opt                              = 1,      2,      2,
+ damp_opt                            = 2,
+ zdamp                               = 5000.,  5000.,  5000.,
+ dampcoef                            = 0.003,  0.003,  0.003
+ khdif                               = 1000,   500,    500,
+ kvdif                               = 1,      500,    500,
+ smdiv                               = 0.1,    0.1,    0.1,
+ emdiv                               = 0.01,   0.01,   0.01,
+ epssm                               = 0.1,    0.1,    0.1
+ time_step_sound                     = 6,      6,      6,
+ h_mom_adv_order                     = 5,      5,      5,
+ v_mom_adv_order                     = 3,      3,      3,
+ h_sca_adv_order                     = 5,      5,      5,
+ v_sca_adv_order                     = 3,      3,      3,
+ moist_adv_opt                       = 1,      1,      1,     
+ scalar_adv_opt                      = 1,      1,      1,     
+ chem_adv_opt                        = 1,      1,      1,     
+ tke_adv_opt                         = 1,      1,      1,     
+ non_hydrostatic                     = .true., .true., .true.,
+ mix_full_fields                     = .true., .true., .true.,
+ /
+
+ &bdy_control
+ periodic_x                          = .true.,
+ symmetric_xs                        = .false.,
+ symmetric_xe                        = .false.,
+ open_xs                             = .false., 
+ open_xe                             = .false., 
+ periodic_y                          = .true.,
+ symmetric_ys                        = .false.,
+ symmetric_ye                        = .false.,
+ open_ys                             = .false., 
+ open_ye                             = .false.,
+ /
+
+ &grib2
+ /
+
+ &namelist_quilt
+ nio_tasks_per_group = 0,
+ nio_groups = 1,
+ /
+
+ &ideal
+ ideal_case = 2
+ /
