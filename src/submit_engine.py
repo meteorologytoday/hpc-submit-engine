@@ -79,10 +79,13 @@ class SubmitEngine:
         
         # Calculate total simulation time
         total_time = end_time - start_time
-        
+       
         # Calculate number of runs
         num_runs = math.ceil(total_time.total_seconds() / run_length.total_seconds())
-        
+       
+        if num_runs <= 0:
+            raise Exception("Computed number of runs is less than or equal to zero. Please check your simulation time.")
+ 
         return num_runs, start_time, end_time, run_length
     
     def generate_expected_files(self, num_runs: int, start_time: datetime, 
