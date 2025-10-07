@@ -102,25 +102,27 @@ class SubmitEngine:
             List of lists, where each inner list contains expected files for that run
         """
         expected_files = []
-        
-        for run_idx in range(num_runs):
-            run_end_time = start_time + run_length * (run_idx + 1)
-            
+
+        for run_idx in range(1, num_runs+1):
+            run_start_time = start_time + run_length * ( run_idx - 1 )
+            run_end_time = start_time + run_length * run_idx
+
             # Generate expected WRF output filenames
             # Format: wrfout_d01_YYYY-MM-DD_HH:MM:SS
             files_for_run = []
-            
+
             # Typically WRF outputs one file per domain
             # Adjust domain count as needed (here assuming domain 01)
             domain_str = "d01"
-            time_str = run_end_time.strftime("%Y-%m-%d_%H:%M:%S")
+            time_str = run_start_time.strftime("%Y-%m-%d_%H:%M:%S")
             output_file = f"wrfout_{domain_str}_{time_str}"
-            files_for_run.append(output_file)
-            
+            #files_for_run.append(output_file)
+
             # Can add additional expected files like restart files
+            time_str = run_end_time.strftime("%Y-%m-%d_%H:%M:%S")
             restart_file = f"wrfrst_{domain_str}_{time_str}"
             files_for_run.append(restart_file)
-            
+
             expected_files.append(files_for_run)
         
         return expected_files
@@ -180,19 +182,20 @@ class SubmitEngine:
         Check current progress by verifying expected files
         
         Returns:
-            Current run index (0-based). If all files for run N exist, returns N+1
+            Current run index (1-based). If all files for run N exist, returns N+1
         """
         meta = self.load_meta()
         expected_files = meta['expected_files']
-        
-        for run_idx, files in enumerate(expected_files):
+       
+        run_idx = -1 
+        for run_idx, files in zip(range(1, len(expected_files)+1), expected_files):
             # Check if all files exist for this run
             all_exist = all((self.work_dir / f).exists() for f in files)
             if not all_exist:
                 return run_idx
-        
+
         # All runs completed
-        return len(expected_files)
+        return len(expected_files) + 1
     
     def create_lock(self, job_id: str, run_idx: int) -> None:
         """
@@ -286,12 +289,12 @@ class SubmitEngine:
             if self.is_job_running(job_id):
                 print(f"Status: RUNNING")
                 print(f"Job ID: {job_id}")
-                print(f"Current run: {run_idx + 1}/{total_runs}")
+                print(f"Current run: {run_idx}/{total_runs}")
                 print(f"Started: {timestamp}")
             else:
                 print(f"Status: NOT RUNNING (but lock exists)")
                 print(f"Last job ID: {job_id}")
-                print(f"Last run: {run_idx + 1}/{total_runs}")
+                print(f"Last run: {run_idx}/{total_runs}")
                 print(f"Timestamp: {timestamp}")
                 response = input("Remove lock file? (y/n): ")
                 if response.lower() == 'y':
@@ -352,7 +355,7 @@ class SubmitEngine:
         Update namelist.input for the current run
         
         Args:
-            run_idx: Current run index (0-based)
+            run_idx: Current run index (1-based)
         """
         meta = self.load_meta()
         nml = self.parse_namelist()
@@ -361,7 +364,7 @@ class SubmitEngine:
         base_start = datetime.fromisoformat(meta['start_time'])
         run_length = timedelta(seconds=meta['run_length_seconds'])
         
-        run_start = base_start + run_length * run_idx
+        run_start = base_start + run_length * (run_idx - 1)
         run_end = run_start + run_length
         
         # Update time_control section
@@ -384,11 +387,11 @@ class SubmitEngine:
         time_control['end_second'][0] = run_end.second
         
         # Set restart flag (restart for runs after the first)
-        time_control['restart'] = run_idx > 0
+        time_control['restart'] = run_idx >= 2
         
         # Write updated namelist
         nml.write(self.namelist_input, force=True)
-        print(f"Updated namelist for run {run_idx + 1}: {run_start} to {run_end}")
+        print(f"Updated namelist for run {run_idx}: {run_start} to {run_end}")
     
     def append_record(self, job_id: str, run_idx: int) -> None:
         """
@@ -396,10 +399,10 @@ class SubmitEngine:
         
         Args:
             job_id: Slurm job ID
-            run_idx: Current run index
+            run_idx: Current run index (1-based)
         """
         timestamp = datetime.now().isoformat()
-        record_line = f"{timestamp} | Run {run_idx + 1} | Job ID: {job_id}\n"
+        record_line = f"{timestamp} | Run {run_idx} | Job ID: {job_id}\n"
         
         with open(self.record_file, 'a') as f:
             f.write(record_line)
@@ -430,12 +433,13 @@ class SubmitEngine:
         meta = self.load_meta()
         current_run = self.check_progress()
         total_runs = meta['num_runs']
-        
-        if current_run >= total_runs:
+
+        print(f"Current run: {current_run:d}")        
+        if current_run > total_runs:
             print("All runs completed!")
             return
         
-        print(f"Submitting run {current_run + 1}/{total_runs}")
+        print(f"Submitting run {current_run}/{total_runs}")
         
         # Update namelist
         self.update_namelist(current_run)
